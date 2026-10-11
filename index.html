@@ -1,0 +1,868 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b10">
+<title>LEDGERX — Accounting Suite</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg:#090b10;
+  --panel:#11151d;
+  --panel2:#171c26;
+  --line:rgba(255,255,255,.09);
+  --text:#f4f5f7;
+  --muted:#9299a9;
+  --red:#ff3e55;
+  --red2:#b91f39;
+  --green:#4ce0a0;
+  --yellow:#ffcb70;
+  --radius:20px;
+}
+
+* {box-sizing:border-box}
+html {scroll-behavior:smooth}
+body {
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 10% 0%,rgba(255,45,75,.10),transparent 40%),
+    radial-gradient(ellipse at 100% 50%,rgba(75,85,120,.08),transparent 45%),
+    var(--bg);
+  font-family:Inter,system-ui,sans-serif;
+  min-height:100vh;
+}
+button,input,select {font:inherit}
+button {cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible {
+  outline:2px solid var(--red);
+  outline-offset:3px;
+}
+::selection {background:var(--red);color:white}
+
+.topbar {
+  height:74px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:0 5%;
+  background:rgba(9,11,16,.84);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+}
+.brand {display:flex;align-items:center;gap:12px}
+.logo {
+  width:39px;height:39px;
+  display:grid;place-items:center;
+  border-radius:12px;
+  color:white;
+  font-size:19px;
+  font-weight:900;
+  background:linear-gradient(135deg,#ff5669,#a90e2b);
+  box-shadow:0 5px 25px #ff28432e;
+}
+.brand-name {font-size:17px;font-weight:900;letter-spacing:2px}
+.brand-sub {font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:4px}
+.status {
+  display:flex;align-items:center;gap:8px;
+  font:10px "DM Mono",monospace;
+  color:var(--green);
+  border:1px solid #4ce0a025;
+  background:#4ce0a00a;
+  padding:9px 12px;border-radius:30px;
+}
+.dot {
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 10px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse {50%{opacity:.4;box-shadow:0 0 2px var(--green)}}
+
+main {max-width:1200px;margin:auto;padding:38px 5% 100px}
+.eyebrow {
+  display:flex;align-items:center;gap:9px;
+  color:var(--red);
+  font:10px "DM Mono",monospace;
+  letter-spacing:2px;text-transform:uppercase;
+}
+.eyebrow:before {content:"";width:23px;height:1px;background:var(--red)}
+.hero {
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:20px;margin-bottom:28px;
+  animation:rise .65s ease both;
+}
+h1 {font-size:clamp(31px,5vw,54px);letter-spacing:-2px;line-height:1.05;margin:15px 0 12px}
+h1 span {color:var(--red)}
+.subtitle {color:var(--muted);font-size:13px;line-height:1.8;max-width:500px}
+.hero-actions {display:flex;gap:9px;flex-wrap:wrap}
+.btn {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 15px;border:1px solid var(--line);
+  border-radius:12px;color:var(--text);background:var(--panel2);
+  font-size:12px;font-weight:700;transition:.2s;
+}
+.btn:hover {transform:translateY(-2px);border-color:#ffffff35}
+.btn.primary {
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--red),var(--red2));
+  box-shadow:0 6px 25px #ff3e5520;
+}
+.btn.primary:hover {box-shadow:0 8px 30px #ff3e5540}
+.btn.danger {color:#ff7a89}
+.btn.small {padding:8px 10px;font-size:11px}
+
+.stats {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;margin-bottom:24px;
+}
+.stat {
+  padding:19px;border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(145deg,#161b25,#10131a);
+  animation:rise .65s ease both;
+  transition:transform .25s,border-color .25s;
+}
+.stat:hover {transform:translateY(-4px);border-color:#ff3e5545}
+.stat-label {color:var(--muted);font-size:11px}
+.stat-icon {
+  width:35px;height:35px;display:grid;place-items:center;
+  border-radius:11px;background:#ff3e5515;color:var(--red);
+  margin-bottom:18px;font-size:16px;
+}
+.stat-value {font-size:clamp(20px,3vw,29px);font-weight:800;letter-spacing:-1px;overflow-wrap:anywhere}
+.stat-note {color:var(--muted);font-size:10px;margin-top:8px}
+.stat-note.good {color:var(--green)}
+.mono {font-family:"DM Mono",monospace}
+
+.panel {
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(145deg,rgba(20,24,34,.96),rgba(14,17,24,.98));
+  overflow:hidden;
+  margin-bottom:20px;
+  animation:rise .7s ease both;
+}
+.panel-head {
+  padding:21px 23px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;border-bottom:1px solid var(--line);
+}
+.panel-title {font-size:14px;font-weight:800}
+.panel-desc {font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.panel-body {padding:23px}
+.section-label {
+  font:10px "DM Mono",monospace;color:var(--red);
+  letter-spacing:1.7px;text-transform:uppercase;
+  margin:0 0 15px;
+}
+.workspace {
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.field-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field {display:flex;flex-direction:column;gap:8px;min-width:0}
+.field.full {grid-column:1/-1}
+label {font-size:11px;color:#b3b9c6}
+input,select {
+  min-width:0;width:100%;
+  background:#0b0e14;color:var(--text);
+  border:1px solid #ffffff13;border-radius:10px;
+  padding:12px;font-size:12px;transition:border-color .2s;
+}
+input:focus,select:focus {outline:none;border-color:var(--red)}
+input::placeholder {color:#636b7b}
+.money-input {font-family:"DM Mono",monospace}
+.divider {height:1px;background:var(--line);margin:22px 0}
+.row-list {display:flex;flex-direction:column;gap:9px}
+.account-row {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.8fr) 35px;
+  gap:8px;align-items:center;
+}
+.account-row input {padding:10px}
+.remove {
+  border:1px solid #ffffff12;background:#ff3e550c;color:#ff7c8a;
+  width:35px;height:35px;border-radius:9px;font-size:17px;
+}
+.remove:hover {background:#ff3e5520}
+.add-row {
+  margin-top:12px;background:transparent;border:1px dashed #ffffff24;
+  color:var(--muted);padding:11px;width:100%;border-radius:10px;font-size:11px;
+}
+.add-row:hover {border-color:var(--red);color:white}
+.total-line {
+  display:flex;justify-content:space-between;gap:12px;
+  align-items:center;margin-top:17px;padding-top:15px;
+  border-top:1px solid var(--line);font-size:12px;
+}
+.total-line strong {font:15px "DM Mono",monospace}
+.partner-card {
+  border:1px solid var(--line);border-radius:15px;
+  padding:16px;margin-bottom:12px;background:#0c0f16;
+}
+.partner-top {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.partner-name {font-size:12px;font-weight:800}
+.partner-capital {font:11px "DM Mono",monospace;color:var(--green)}
+.partner-fields {display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.partner-fields input {padding:10px}
+.partner-fields label {font-size:10px}
+.partner-fields .field {gap:6px}
+.formula {
+  padding:14px;border:1px solid #ff3e5525;background:#ff3e5508;
+  border-radius:12px;font-size:11px;line-height:1.8;color:#c6cbd6;
+}
+.formula b {color:white}
+.formula em {color:var(--red);font-style:normal}
+
+.result-layout {display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
+.balance-hero {
+  padding:24px;background:linear-gradient(130deg,#26121b,#17111a 70%,#10131b);
+  border:1px solid #ff3e5528;border-radius:16px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.balance-hero:after {
+  content:"";position:absolute;right:-35px;top:-60px;
+  width:180px;height:180px;border:1px solid #ff3e5523;border-radius:50%;
+  box-shadow:0 0 0 20px #ff3e5505,0 0 0 40px #ff3e5504;
+}
+.balance-label {font-size:11px;color:#c4a7b0}
+.balance-amount {font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-1.5px;margin:12px 0}
+.balance-status {font-size:11px;display:flex;align-items:center;gap:7px}
+.balance-status.good {color:var(--green)}
+.balance-status.bad {color:var(--yellow)}
+.report-section {margin-bottom:21px}
+.report-section h3 {
+  color:var(--muted);font-size:10px;letter-spacing:1.5px;
+  font-family:"DM Mono",monospace;font-weight:400;margin:0 0 11px;
+}
+.report-row {
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;padding:9px 0;border-bottom:1px solid #ffffff08;font-size:12px;
+}
+.report-row span:first-child {color:#c3c8d2}
+.report-row span:last-child {font:11px "DM Mono",monospace;text-align:right}
+.report-row.total {border-top:1px solid #ffffff20;border-bottom:0;margin-top:6px;padding-top:14px;font-weight:800}
+.report-row.total span {color:white;font-size:12px}
+.report-row.grand {border-top:1px solid var(--red);padding-top:15px}
+.report-row.grand span:last-child {color:var(--red);font-size:14px}
+.balance-check {
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  margin-top:18px;background:#0b0e14;
+}
+.check-line {display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:8px 0}
+.check-line span:first-child {color:var(--muted)}
+.check-line strong {font:11px "DM Mono",monospace}
+.check-message {font-size:11px;line-height:1.7;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.check-message.good {color:var(--green)}
+.check-message.bad {color:var(--yellow)}
+.notice {
+  border:1px solid #ffcb7030;background:#ffcb7009;
+  color:#d8c8a9;padding:13px 15px;border-radius:12px;
+  font-size:11px;line-height:1.8;margin-top:15px;
+}
+.footer {
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:10px;color:#707787;font-size:10px;
+  padding:15px 0 0;
+}
+.toast {
+  position:fixed;z-index:50;bottom:24px;left:50%;
+  transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  padding:13px 19px;border:1px solid #ffffff1c;border-radius:12px;
+  background:#1c222e;color:white;font-size:12px;
+  box-shadow:0 10px 40px #0008;transition:.3s;max-width:90%;
+}
+.toast.show {opacity:1;transform:translate(-50%,0)}
+.empty {font-size:11px;color:var(--muted);padding:10px 0}
+
+@keyframes rise {
+  from {opacity:0;transform:translateY(14px)}
+  to {opacity:1;transform:translateY(0)}
+}
+
+@media(max-width:850px) {
+  main {padding-top:27px}
+  .stats {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace,.result-layout {grid-template-columns:1fr}
+}
+@media(max-width:520px) {
+  .topbar {height:65px;padding:0 17px}
+  .brand-name {font-size:15px}
+  .status {font-size:9px;padding:8px}
+  main {padding:26px 15px 80px}
+  .hero {align-items:flex-start;flex-direction:column}
+  h1 {letter-spacing:-1.5px}
+  .hero-actions {width:100%}
+  .hero-actions .btn {flex:1}
+  .stats {gap:9px}
+  .stat {padding:14px;border-radius:15px}
+  .stat-icon {margin-bottom:14px}
+  .panel-head {padding:17px}
+  .panel-body {padding:16px}
+  .field-grid {gap:10px}
+  .account-row {grid-template-columns:minmax(0,1fr) minmax(90px,.8fr) 32px;gap:6px}
+  .account-row input {font-size:11px;padding:10px 8px}
+  .remove {width:32px;height:35px}
+  .partner-fields {gap:9px}
+  .partner-fields input {font-size:11px;padding:10px 8px}
+  .balance-hero {padding:19px}
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">L</div>
+    <div>
+      <div class="brand-name">LEDGERX</div>
+      <div class="brand-sub">ACCOUNTING INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="status"><span class="dot"></span> SYSTEM ONLINE</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Financial reporting suite</div>
+      <h1>Make every number<br><span>account for itself.</span></h1>
+      <div class="subtitle">
+        Build a Statement of Financial Position, calculate partnership capital,
+        and verify your accounting equation in real time.
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn" onclick="loadSample()">↻ Load sample</button>
+      <button class="btn primary" onclick="copyReport()">▣ Copy report</button>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-icon">◈</div>
+      <div class="stat-label">TOTAL ASSETS</div>
+      <div class="stat-value" id="statAssets">₱0.00</div>
+      <div class="stat-note">What the business owns</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">↗</div>
+      <div class="stat-label">TOTAL LIABILITIES</div>
+      <div class="stat-value" id="statLiabilities">₱0.00</div>
+      <div class="stat-note">What the business owes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">⌘</div>
+      <div class="stat-label">PARTNERS' EQUITY</div>
+      <div class="stat-value" id="statEquity">₱0.00</div>
+      <div class="stat-note">Combined ending capital</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">◎</div>
+      <div class="stat-label">BALANCE STATUS</div>
+      <div class="stat-value" id="statStatus" style="font-size:21px">INCOMPLETE</div>
+      <div class="stat-note" id="statDifference">Enter your balances</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">01 / Company profile</div>
+        <div class="panel-desc">Set up the business and reporting date.</div>
+      </div>
+      <span class="mono" style="font-size:10px;color:var(--red)">SETUP</span>
+    </div>
+    <div class="panel-body">
+      <div class="field-grid">
+        <div class="field">
+          <label for="company">Business / Partnership Name</label>
+          <input id="company" value="AB PARTNERSHIP" placeholder="Enter business name" oninput="render()">
+        </div>
+        <div class="field">
+          <label for="date">Statement Date</label>
+          <input id="date" type="date" oninput="render()">
+        </div>
+        <div class="field full">
+          <label for="currency">Currency</label>
+          <select id="currency" onchange="render()">
+            <option value="PHP">Philippine Peso (₱)</option>
+            <option value="USD">US Dollar ($)</option>
+            <option value="EUR">Euro (€)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace">
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">02 / Assets</div>
+          <div class="panel-desc">Resources owned or controlled by the business.</div>
+        </div>
+        <span class="mono" id="assetCount" style="font-size:10px;color:var(--muted)">0 ITEMS</span>
+      </div>
+      <div class="panel-body">
+        <div class="section-label">Current & non-current assets</div>
+        <div class="row-list" id="assetsList"></div>
+        <button class="add-row" onclick="addAccount('assets')">＋ Add asset account</button>
+        <div class="total-line"><span>Total assets</span><strong id="assetsTotal">₱0.00</strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">03 / Liabilities</div>
+          <div class="panel-desc">Obligations payable to other parties.</div>
+        </div>
+        <span class="mono" id="liabilityCount" style="font-size:10px;color:var(--muted)">0 ITEMS</span>
+      </div>
+      <div class="panel-body">
+        <div class="section-label">Current & non-current liabilities</div>
+        <div class="row-list" id="liabilitiesList"></div>
+        <button class="add-row" onclick="addAccount('liabilities')">＋ Add liability account</button>
+        <div class="total-line"><span>Total liabilities</span><strong id="liabilitiesTotal">₱0.00</strong></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">04 / Partners' capital worksheet</div>
+        <div class="panel-desc">Calculate each partner's ending capital using the capital method.</div>
+      </div>
+      <span class="mono" style="font-size:10px;color:var(--red)">PARTNERSHIP</span>
+    </div>
+    <div class="panel-body">
+      <div class="formula">
+        <b>Ending Capital</b> =
+        Beginning Capital + Additional Investment + Share of Profit
+        − Share of Loss − Withdrawals
+      </div>
+      <div class="divider"></div>
+      <div id="partnersList"></div>
+      <button class="btn" onclick="addPartner()">＋ Add partner</button>
+      <div class="total-line">
+        <span>Total partners' ending capital</span>
+        <strong id="partnersTotal">₱0.00</strong>
+      </div>
+      <div class="notice">
+        <b>Accounting note:</b> This worksheet assumes profit and loss amounts
+        are already allocated to each partner. Enter losses and withdrawals
+        as positive amounts; the calculator subtracts them automatically.
+        Profit-sharing arrangements should follow your partnership agreement.
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">05 / Financial position report</div>
+        <div class="panel-desc">Your report is generated automatically from the values above.</div>
+      </div>
+      <button class="btn small" onclick="copyReport()">▣ Copy text</button>
+    </div>
+    <div class="panel-body">
+      <div class="result-layout">
+        <div>
+          <div class="balance-hero">
+            <div class="balance-label">TOTAL ASSETS</div>
+            <div class="balance-amount" id="reportAssets">₱0.00</div>
+            <div class="balance-status" id="reportStatus">◉ Waiting for balances</div>
+          </div>
+          <div class="report-section">
+            <h3>ASSETS</h3>
+            <div id="reportAssetRows"></div>
+            <div class="report-row total"><span>Total Assets</span><span id="reportAssetTotal">₱0.00</span></div>
+          </div>
+          <div class="report-section">
+            <h3>LIABILITIES</h3>
+            <div id="reportLiabilityRows"></div>
+            <div class="report-row total"><span>Total Liabilities</span><span id="reportLiabilityTotal">₱0.00</span></div>
+          </div>
+          <div class="report-section">
+            <h3>PARTNERS' EQUITY</h3>
+            <div id="reportPartnerRows"></div>
+            <div class="report-row total"><span>Total Partners' Equity</span><span id="reportPartnerTotal">₱0.00</span></div>
+          </div>
+          <div class="report-row grand"><span>TOTAL LIABILITIES + EQUITY</span><span id="reportGrandTotal">₱0.00</span></div>
+        </div>
+
+        <div>
+          <div class="section-label">Accounting equation</div>
+          <div class="formula" style="font-size:13px;text-align:center;padding:23px 12px">
+            <div>Total Assets</div>
+            <div style="font-size:20px;font-weight:800;margin:8px 0;color:white" id="equationAssets">₱0.00</div>
+            <div style="color:var(--red);font-size:17px;margin:10px 0">=</div>
+            <div>Total Liabilities + Equity</div>
+            <div style="font-size:20px;font-weight:800;margin:8px 0;color:white" id="equationRight">₱0.00</div>
+          </div>
+          <div class="balance-check">
+            <div class="section-label">Verification</div>
+            <div class="check-line"><span>Assets</span><strong id="checkAssets">₱0.00</strong></div>
+            <div class="check-line"><span>Liabilities</span><strong id="checkLiabilities">₱0.00</strong></div>
+            <div class="check-line"><span>Partners' Equity</span><strong id="checkEquity">₱0.00</strong></div>
+            <div class="check-line"><span>Difference</span><strong id="checkDifference">₱0.00</strong></div>
+            <div class="check-message" id="checkMessage">Enter your account balances to check the equation.</div>
+          </div>
+          <div class="notice">
+            The statement balances when total assets equal total liabilities
+            plus total equity. A difference may indicate missing accounts,
+            incorrect balances, or capital figures that do not match the
+            underlying books.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>LEDGERX © 2026 · ACCOUNTING WORKSPACE</span>
+    <span>LOCAL CALCULATIONS · NO ACCOUNT REQUIRED</span>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let assets = [
+  {name:"Cash", amount:0},
+  {name:"Accounts Receivable", amount:0},
+  {name:"Supplies", amount:0},
+  {name:"Equipment", amount:0}
+];
+
+let liabilities = [
+  {name:"Accounts Payable", amount:0},
+  {name:"Bank Loan", amount:0}
+];
+
+let partners = [
+  {name:"Partner A", beginning:0, investment:0, profit:0, loss:0, withdrawals:0},
+  {name:"Partner B", beginning:0, investment:0, profit:0, loss:0, withdrawals:0}
+];
+
+let toastTimer;
+const money = n => {
+  const currency = $("currency").value || "PHP";
+  try {
+    return new Intl.NumberFormat("en-PH", {
+      style:"currency", currency, minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }).format(n);
+  } catch {
+    return "₱" + Number(n || 0).toFixed(2);
+  }
+};
+const num = v => Math.max(0, Number(v) || 0);
+const sumAccounts = arr => arr.reduce((s,a) => s + num(a.amount), 0);
+const endingCapital = p =>
+  num(p.beginning) + num(p.investment) + num(p.profit)
+  - num(p.loss) - num(p.withdrawals);
+const sumPartners = () => partners.reduce((s,p) => s + endingCapital(p), 0);
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function accountRow(type, item, index) {
+  return `
+    <div class="account-row">
+      <input aria-label="${type} account name" value="${escapeHTML(item.name)}"
+        placeholder="Account name"
+        onchange="updateAccount('${type}',${index},'name',this.value)">
+      <input aria-label="${type} amount" class="money-input" type="number"
+        min="0" step="0.01" inputmode="decimal" value="${num(item.amount)}"
+        onchange="updateAccount('${type}',${index},'amount',this.value)"
+        oninput="updateAccount('${type}',${index},'amount',this.value)">
+      <button class="remove" aria-label="Remove account"
+        onclick="removeAccount('${type}',${index})">×</button>
+    </div>`;
+}
+
+function renderAccounts(type) {
+  const arr = type === "assets" ? assets : liabilities;
+  const list = $(type === "assets" ? "assetsList" : "liabilitiesList");
+  list.innerHTML = arr.map((a,i) => accountRow(type,a,i)).join("")
+    || '<div class="empty">No accounts yet. Add one below.</div>';
+  $(type === "assets" ? "assetCount" : "liabilityCount").textContent =
+    arr.length + (arr.length === 1 ? " ITEM" : " ITEMS");
+}
+
+function updateAccount(type, index, key, value) {
+  const arr = type === "assets" ? assets : liabilities;
+  if (!arr[index]) return;
+  arr[index][key] = key === "amount" ? num(value) : value;
+  render();
+}
+
+function addAccount(type) {
+  const arr = type === "assets" ? assets : liabilities;
+  arr.push({name:"New account",amount:0});
+  render();
+  const list = $(type === "assets" ? "assetsList" : "liabilitiesList");
+  const last = list.querySelector(".account-row:last-child input");
+  if (last) { last.focus(); last.select(); }
+}
+
+function removeAccount(type,index) {
+  const arr = type === "assets" ? assets : liabilities;
+  arr.splice(index,1);
+  render();
+}
+
+const partnerFields = [
+  ["beginning","Beginning capital"],
+  ["investment","Additional investment"],
+  ["profit","Share of profit"],
+  ["loss","Share of loss"],
+  ["withdrawals","Withdrawals"]
+];
+
+function renderPartners() {
+  $("partnersList").innerHTML = partners.map((p,i) => `
+    <div class="partner-card">
+      <div class="partner-top">
+        <div class="partner-name">PARTNER ${String(i+1).padStart(2,"0")}</div>
+        <div class="partner-capital">${money(endingCapital(p))}</div>
+      </div>
+      <div class="partner-fields">
+        <div class="field">
+          <label>Partner name</label>
+          <input value="${escapeHTML(p.name)}" aria-label="Partner name"
+            onchange="updatePartner(${i},'name',this.value)">
+        </div>
+        ${partnerFields.map(([key,label]) => `
+          <div class="field">
+            <label>${label} (amount)</label>
+            <input class="money-input" type="number" min="0" step="0.01"
+              inputmode="decimal" aria-label="${label}"
+              value="${num(p[key])}"
+              oninput="updatePartner(${i},'${key}',this.value)">
+          </div>`).join("")}
+      </div>
+    </div>`).join("");
+  $("partnersTotal").textContent = money(sumPartners());
+}
+
+function updatePartner(index,key,value) {
+  if (!partners[index]) return;
+  partners[index][key] = key === "name" ? value : num(value);
+  render();
+}
+
+function addPartner() {
+  partners.push({
+    name:"Partner " + String.fromCharCode(65 + partners.length),
+    beginning:0,investment:0,profit:0,loss:0,withdrawals:0
+  });
+  render();
+}
+
+function reportRows(arr) {
+  return arr.filter(a => a.name.trim() !== "").map(a => `
+    <div class="report-row">
+      <span>${escapeHTML(a.name)}</span><span>${money(num(a.amount))}</span>
+    </div>`).join("") || '<div class="empty">No accounts entered.</div>';
+}
+
+function render() {
+  const a = sumAccounts(assets);
+  const l = sumAccounts(liabilities);
+  const e = sumPartners();
+  const right = l + e;
+  const difference = a - right;
+  const balanced = Math.abs(difference) < 0.005;
+  const hasInput = a !== 0 || l !== 0 || e !== 0;
+
+  renderAccounts("assets");
+  renderAccounts("liabilities");
+  renderPartners();
+
+  $("assetsTotal").textContent = money(a);
+  $("liabilitiesTotal").textContent = money(l);
+  $("statAssets").textContent = money(a);
+  $("statLiabilities").textContent = money(l);
+  $("statEquity").textContent = money(e);
+  $("statStatus").textContent = !hasInput ? "INCOMPLETE" : balanced ? "BALANCED" : "CHECK";
+  $("statStatus").style.color = !hasInput ? "var(--muted)" : balanced ? "var(--green)" : "var(--yellow)";
+  $("statDifference").textContent = !hasInput ? "Enter your balances" :
+    balanced ? "Accounting equation satisfied" : "Difference: " + money(Math.abs(difference));
+
+  $("reportAssets").textContent = money(a);
+  $("reportAssetRows").innerHTML = reportRows(assets);
+  $("reportLiabilityRows").innerHTML = reportRows(liabilities);
+  $("reportAssetTotal").textContent = money(a);
+  $("reportLiabilityTotal").textContent = money(l);
+  $("reportPartnerRows").innerHTML = partners.map(p => `
+    <div class="report-row">
+      <span>${escapeHTML(p.name || "Unnamed partner")}, Capital</span>
+      <span>${money(endingCapital(p))}</span>
+    </div>`).join("") || '<div class="empty">No partners entered.</div>';
+  $("reportPartnerTotal").textContent = money(e);
+  $("reportGrandTotal").textContent = money(right);
+  $("equationAssets").textContent = money(a);
+  $("equationRight").textContent = money(right);
+  $("checkAssets").textContent = money(a);
+  $("checkLiabilities").textContent = money(l);
+  $("checkEquity").textContent = money(e);
+  $("checkDifference").textContent = money(difference);
+
+  const status = $("reportStatus");
+  const msg = $("checkMessage");
+  if (!hasInput) {
+    status.textContent = "◉ Waiting for balances";
+    status.className = "balance-status";
+    msg.textContent = "Enter your account balances to check the equation.";
+    msg.className = "check-message";
+  } else if (balanced) {
+    status.textContent = "✓ Accounting equation balanced";
+    status.className = "balance-status good";
+    msg.textContent = "Balanced. Total assets equal total liabilities plus partners' equity.";
+    msg.className = "check-message good";
+  } else {
+    status.textContent = "⚠ Difference detected";
+    status.className = "balance-status bad";
+    msg.textContent = "Your statement is out of balance by " +
+      money(Math.abs(difference)) + ". Review missing accounts, liabilities, or capital balances.";
+    msg.className = "check-message bad";
+  }
+}
+
+function loadSample() {
+  $("company").value = "AB PARTNERSHIP";
+  $("date").value = new Date().toISOString().slice(0,10);
+  $("currency").value = "PHP";
+  assets = [
+    {name:"Cash",amount:30000},
+    {name:"Accounts Receivable",amount:10000},
+    {name:"Supplies",amount:5000},
+    {name:"Equipment",amount:55000}
+  ];
+  liabilities = [
+    {name:"Accounts Payable",amount:20000},
+    {name:"Bank Loan",amount:15000}
+  ];
+  partners = [
+    {name:"Partner A",beginning:40000,investment:0,profit:0,loss:0,withdrawals:0},
+    {name:"Partner B",beginning:25000,investment:0,profit:0,loss:0,withdrawals:0}
+  ];
+  render();
+  notify("Sample loaded. The accounting equation balances.");
+}
+
+function buildReport() {
+  const a = sumAccounts(assets);
+  const l = sumAccounts(liabilities);
+  const e = sumPartners();
+  const right = l + e;
+  const date = $("date").value || "Date not specified";
+  const company = $("company").value.trim() || "Unnamed Business";
+  const currency = $("currency").value;
+  const fmt = n => {
+    try { return new Intl.NumberFormat("en-PH",{style:"currency",currency}).format(n); }
+    catch { return n.toFixed(2); }
+  };
+  const lines = [
+    company.toUpperCase(),
+    "STATEMENT OF FINANCIAL POSITION",
+    "As of " + date,
+    "",
+    "ASSETS",
+    ...assets.map(x => `  ${x.name}: ${fmt(num(x.amount))}`),
+    `TOTAL ASSETS: ${fmt(a)}`,
+    "",
+    "LIABILITIES",
+    ...liabilities.map(x => `  ${x.name}: ${fmt(num(x.amount))}`),
+    `TOTAL LIABILITIES: ${fmt(l)}`,
+    "",
+    "PARTNERS' EQUITY",
+    ...partners.map(p => `  ${p.name}, Capital: ${fmt(endingCapital(p))}`),
+    `TOTAL PARTNERS' EQUITY: ${fmt(e)}`,
+    "",
+    `TOTAL LIABILITIES AND EQUITY: ${fmt(right)}`,
+    `DIFFERENCE (ASSETS - LIABILITIES AND EQUITY): ${fmt(a-right)}`,
+    `STATUS: ${Math.abs(a-right)<0.005 ? "BALANCED" : "OUT OF BALANCE"}`,
+    "",
+    "Note: Verify all balances against the accounting records."
+  ];
+  return lines.join("\n");
+}
+
+async function copyReport() {
+  const text = buildReport();
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand("copy");
+      area.remove();
+      if (!ok) throw new Error("Clipboard unavailable");
+    }
+    notify("Financial report copied to clipboard.");
+  } catch {
+    showReportText(text);
+  }
+}
+
+function showReportText(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("aria-label","Copyable financial report");
+  Object.assign(area.style,{
+    position:"fixed",zIndex:"100",left:"5%",top:"15%",width:"90%",
+    height:"70%",background:"#11151d",color:"white",padding:"15px",
+    border:"1px solid #ff3e55",borderRadius:"12px"
+  });
+  const close = document.createElement("button");
+  close.textContent = "Close report";
+  Object.assign(close.style,{
+    position:"fixed",zIndex:"101",bottom:"8%",left:"35%",
+    padding:"12px",background:"#ff3e55",color:"white",border:"0",
+    borderRadius:"8px"
+  });
+  close.onclick = () => {area.remove();close.remove();};
+  document.body.append(area,close);
+  area.focus();
+  area.select();
+  notify("Select and copy the report text.");
+}
+
+function notify(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"),2600);
+}
+
+$("date").value = new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>
